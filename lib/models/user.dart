@@ -1,4 +1,4 @@
-import '../string_util.dart';
+import 'package:FlutterGalleryApp/string_util.dart';
 
 enum LoginType { email, phone }
 
@@ -118,8 +118,4 @@ class User {
     friends: ${friends.toList()}
   ''';
   }
-}
-
-mixin UserUtils {
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1).toLowerCase();
 }
