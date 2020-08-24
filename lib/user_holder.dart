@@ -1,4 +1,4 @@
-import 'models/user.dart';
+import './models/user.dart';
 
 class UserHolder {
   Map<String, User> users = {};
@@ -9,69 +9,65 @@ class UserHolder {
     if (!users.containsKey(user.login)) {
       users[user.login] = user;
     } else {
-      throw Exception("A user with this name already exist");
+      throw Exception('A user with this email already exists');
     }
   }
 
-  User registerUserByPhone(String name, String phone) {
-    User user = User(name: name, phone: phone);
+  User registerUserByEmail(String fullName, String email) {
+    User user = User(name: fullName, email: email);
 
     if (!users.containsKey(user.login)) {
       users[user.login] = user;
+      return user;
     } else {
-      throw Exception("A user with this name already exist");
+      throw Exception('A user with this email already exists');
     }
-
-    return user;
   }
 
-  User registerUserByEmail(String name, String email) {
-    User user = User(name: name, email: email);
+  User registerUserByPhone(String fullName, String phone) {
+    User user = User(name: fullName, phone: phone);
 
     if (!users.containsKey(user.login)) {
       users[user.login] = user;
+      return user;
     } else {
-      throw Exception("A user with this name already exist");
+      throw Exception('A user with this phone already exists');
     }
-
-    return user;
   }
 
   User getUserByLogin(String login) {
-    if (!users.containsKey(login)) {
-      throw Exception("There is no user with this name");
+    return users[login];
+  }
+
+  void setFriends(String login, List<User> friends) {
+    User user = getUserByLogin(login);
+    user.friends.addAll(friends);
+  }
+
+  User findUserInFriends(String login, User friend) {
+    User user = getUserByLogin(login);
+    if (user.friends.contains(friend)) {
+      return friend;
     } else {
-      return users[login];
+      throw Exception("${user.login} is not a friend of the login");
     }
   }
 
-  void setFriends(String userLogin, List<User> friends) {
-    User user = this.getUserByLogin(userLogin);
-
-    user.addFriends(friends);
-  }
-
-  User findUserInFriends(String userLogin, User friend) {
-    User user = this.getUserByLogin(userLogin);
-
-    User result = user.friends.firstWhere((user) => user.name == friend.name, orElse: () => null);
-
-    if(result == null) {
-      throw Exception("User not found");
+  List<User> importUsers(List<String> stringList) {
+    List<User> userList = List();
+    if (stringList.isNotEmpty) {
+      stringList.forEach((str) {
+        userList.add(_parseUserString(str));
+      });
     }
-
-    return result;
+    return userList;
   }
 
-  List<User> importUsers(List<String> data) {
-    List<String> arr = data[0].split(';');
-
-    String name = arr[0].trim();
-    String email = arr[1].trim();
-    String phone = arr[2].trim();
-
-    User user = User(name: name, phone: phone, email: email);
-
-    return [user];
+  User _parseUserString(String userString) {
+    List<String> splintedList = userString.split(";\n");
+    String name = splintedList[0].trim();
+    String phone = splintedList[2].trim();
+    String email = splintedList[1].trim();
+    return User(name: name, phone: phone, email: email);
   }
 }
