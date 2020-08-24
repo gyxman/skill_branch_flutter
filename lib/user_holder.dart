@@ -3,75 +3,81 @@ import 'models/user.dart';
 class UserHolder {
   Map<String, User> users = {};
 
-  void registerUser(String name, String phone, String email) {
-    User user = User(name: name, phone: phone, email: email);
-
-    if (!users.containsKey(user.login)) {
-      users[user.login] = user;
-    } else {
-      throw Exception("A user with this name already exist");
+  User registerUser (String name, String phone, String email) {
+    User user = User (name: name, phone: phone, email: email);
+    print (user.toString());
+    if (!users.containsKey (user.login)) {
+      users [user.login] = user;
+      return user;
+      } else {
+        throw Exception ('A user with this name already exist');
     }
   }
 
-  User registerUserByPhone(String name, String phone) {
-    User user = User(name: name, phone: phone);
-
-    if (!users.containsKey(user.login)) {
-      users[user.login] = user;
+  User registerUserByEmail(String fullName, String email) {
+    User user = User (name: fullName, email: email);
+    if (!users.containsKey (user.login)) {
+      users [user.login] = user;
+      print ('registerUserByEmail ${user.toString()}');
+      return user;
     } else {
-      throw Exception("A user with this name already exist");
+      throw Exception ('A user with this email already exists');
     }
 
-    return user;
   }
 
-  User registerUserByEmail(String name, String email) {
-    User user = User(name: name, email: email);
-
-    if (!users.containsKey(user.login)) {
-      users[user.login] = user;
+  User registerUserByPhone(String fullName, String phone) {
+    User user = User (name: fullName, phone: phone);
+    if (!users.containsKey (user.login)) {
+      users [user.login] = user;
+      print ('registerUserByPhone ${user.toString()}');
+      return user;
     } else {
-      throw Exception("A user with this name already exist");
+      throw Exception ('A user with this phone already exists');
     }
-
-    return user;
   }
 
-  User getUserByLogin(String login) {
-    if (!users.containsKey(login)) {
-      throw Exception("There is no user with this name");
-    } else {
+  User getUserByLogin (String login) {
+    if (users.containsKey(login)) {
       return users[login];
     }
+    throw Exception("$login is not found");
   }
-
-  void setFriends(String userLogin, List<User> friends) {
-    User user = this.getUserByLogin(userLogin);
-
-    user.addFriends(friends);
-  }
-
-  User findUserInFriends(String userLogin, User friend) {
-    User user = this.getUserByLogin(userLogin);
-
-    User result = user.friends.firstWhere((user) => user.name == friend.name, orElse: () => null);
-
-    if(result == null) {
-      throw Exception("User not found");
+//--------------------------------------------------------------
+  User findUserInFriends (String fullName, User user) {
+    if (users.containsKey(fullName)) {
+      if (users[fullName].friends.contains(user)) {
+        return user;
+      } else {
+        throw Exception("${user.login} is not a friend of the login");
+      }
     }
-
-    return result;
+    throw Exception("$fullName is not found");
   }
 
-  List<User> importUsers(List<String> data) {
-    List<String> arr = data[0].split(';');
+  void setFriends(String login, List<User> friends) {
+    if (users.containsKey(login)) {
+      users[login].friends.addAll(friends);
+    } else {
+      throw Exception("User $login is not found");
+    }
+  }
 
-    String name = arr[0].trim();
-    String email = arr[1].trim();
-    String phone = arr[2].trim();
+  List<User> importUsers (List<String> stringList) {
+    List<User> userList = List();
+    if (stringList.isNotEmpty) {
+      stringList.forEach((str) {
+        userList.add(_parseUserString(str));
+      });
+    }
+    return userList;
+  }
 
-    User user = User(name: name, phone: phone, email: email);
-
-    return [user];
+  User _parseUserString (String userString) {
+    List<String> splittedList = userString.split(";\n");
+    String name = splittedList[0].trim();
+    String phone = splittedList[2].trim();
+    String email = splittedList[1].trim();
+    return User(name: name, phone: phone, email: email);
   }
 }
