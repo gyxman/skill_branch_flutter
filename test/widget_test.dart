@@ -1,7 +1,26 @@
-import 'package:flutter_test/flutter_test.dart' show expect, group, isA, setUp, tearDownAll, test, throwsA;
+import 'package:FlutterGalleryApp/res/res.dart';
+import 'package:flutter_test/flutter_test.dart'
+    show
+        WidgetTester,
+        expect,
+        find,
+        findsOneWidget,
+        group,
+        isA,
+        setUp,
+        tearDownAll,
+        test,
+        testWidgets,
+        throwsA;
 
 import '../lib/user_holder.dart';
 import '../lib/models/user.dart';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import '../lib/screens/feed_screen.dart';
+import '../lib/screens/photo_screen.dart';
+import '../lib/widgets/widgets.dart';
 
 void main() {
   UserHolder holder;
@@ -24,7 +43,8 @@ void main() {
   });
 
   test('getUserByLogin', () {
-    User user = User(name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
+    User user = User(
+        name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
     holder.users[user.login] = user;
 
     expect(user.login, holder.getUserByLogin(user.login).login);
@@ -44,7 +64,8 @@ void main() {
     });
 
     test('registerUserByPhone', () {
-      expect(() => holder.registerUserByPhone("John Ray", "+9-733 524-085"), throwsA(isA<Exception>()));
+      expect(() => holder.registerUserByPhone("John Ray", "+9-733 524-085"),
+          throwsA(isA<Exception>()));
     });
   });
 
@@ -59,18 +80,22 @@ void main() {
     });
 
     test('Email is not valid registerUserByPhone', () {
-      expect(() => holder.registerUserByEmail("John Ray", "dfdsag"), throwsA(isA<Exception>()));
+      expect(() => holder.registerUserByEmail("John Ray", "dfdsag"),
+          throwsA(isA<Exception>()));
     });
 
-    test('Exception(A user with this email already exists) registerUserByPhone', () {
+    test('Exception(A user with this email already exists) registerUserByPhone',
+        () {
       holder.registerUserByEmail("John Ray", "ray1550@yahoo.net");
 
-      expect(() => holder.registerUserByEmail("John Ray", "ray1550@yahoo.net"), throwsA(isA<Exception>()));
+      expect(() => holder.registerUserByEmail("John Ray", "ray1550@yahoo.net"),
+          throwsA(isA<Exception>()));
     });
   });
 
   test('setFriends', () {
-    User user = User(name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
+    User user = User(
+        name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
     holder.users[user.login] = user;
 
     List<User> friends = [
@@ -93,7 +118,8 @@ void main() {
 
   group('findUserInFriends', () {
     test('findUserInFriends', () {
-      User user = User(name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
+      User user = User(
+          name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
       holder.users[user.login] = user;
 
       List<User> friends = [
@@ -108,7 +134,8 @@ void main() {
     });
 
     test('findUserInFriends exception', () {
-      User user = User(name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
+      User user = User(
+          name: "Dan Tot", phone: "+15750761449", email: "dan.tot@yandex.ru");
       holder.users[user.login] = user;
 
       List<User> friends = [
@@ -116,13 +143,18 @@ void main() {
         User(name: "Warren Buffett", phone: "+1 833-914-92-65"),
       ];
 
-      expect(() => holder.findUserInFriends(user.login, friends[0]), throwsA(isA<Exception>()));
-      expect(() => holder.findUserInFriends(user.login, friends[1]), throwsA(isA<Exception>()));
+      expect(() => holder.findUserInFriends(user.login, friends[0]),
+          throwsA(isA<Exception>()));
+      expect(() => holder.findUserInFriends(user.login, friends[1]),
+          throwsA(isA<Exception>()));
     });
   });
 
   test('Test: UserHolder.importUsers()', () {
-    User user = User(name: "Dan Tot", phone: "+1 (231) 076-1449", email: "dan.tot@yandex.ru");
+    User user = User(
+        name: "Dan Tot",
+        phone: "+1 (231) 076-1449",
+        email: "dan.tot@yandex.ru");
 
     List<User> users = holder.importUsers([
       """
@@ -135,5 +167,111 @@ void main() {
     expect(users[0].login, user.login);
     expect(users[0].email, user.email);
     expect(users[0].phone, user.phone);
+  });
+
+  testWidgets('LikeButton', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: LikeButton(10, true)));
+
+    final titleFinder = find.text('10');
+    final messageFinder = find.byIcon(AppIcons.like_fill);
+
+    expect(titleFinder, findsOneWidget);
+    expect(messageFinder, findsOneWidget);
+  });
+
+  testWidgets('Photo', (WidgetTester tester) async {
+    await tester.pumpWidget(
+        MaterialApp(home: Photo(photoLink: kFlutterDash, key: Key('Photo'))));
+
+    final titleFinder = find.byKey(Key('Photo'));
+
+    expect(titleFinder, findsOneWidget);
+  });
+
+  testWidgets('FullScreenImage -> altDescription', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FullScreenImage(
+          altDescription: 'Test altDescription',
+          key: Key('FullScreenImage'),
+        ),
+      ),
+    );
+
+    final titleFinder = find.byKey(Key('FullScreenImage'));
+    final altDescription = find.text('Test altDescription');
+
+    expect(titleFinder, findsOneWidget);
+    expect(altDescription, findsOneWidget);
+  });
+
+  testWidgets('FullScreenImage -> userName', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FullScreenImage(
+          userName: 'kaparray',
+          key: Key('FullScreenImage'),
+        ),
+      ),
+    );
+
+    final titleFinder = find.byKey(Key('FullScreenImage'));
+    final userNameText = find.text('@kaparray');
+
+    expect(titleFinder, findsOneWidget);
+    expect(userNameText, findsOneWidget);
+  });
+
+  testWidgets('FullScreenImage -> name', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FullScreenImage(
+          name: 'Kirill Adeshchenko',
+          key: Key('FullScreenImage'),
+        ),
+      ),
+    );
+
+    final titleFinder = find.byKey(Key('FullScreenImage'));
+    final nameText = find.text('Kirill Adeshchenko');
+
+    expect(titleFinder, findsOneWidget);
+    expect(nameText, findsOneWidget);
+  });
+
+  testWidgets('FullScreenImage -> AppBar', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FullScreenImage(
+          key: Key('FullScreenImage'),
+        ),
+      ),
+    );
+
+    final titleFinder = find.byKey(Key('FullScreenImage'));
+    final backButton = find.byIcon(CupertinoIcons.back);
+    final photoTextAppBar = find.text('Photo');
+
+    expect(titleFinder, findsOneWidget);
+    expect(backButton, findsOneWidget);
+    expect(photoTextAppBar, findsOneWidget);
+  });
+
+  testWidgets('FullScreenImage -> ButtonBar', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FullScreenImage(
+          key: Key('FullScreenImage'),
+        ),
+      ),
+    );
+
+    final titleFinder = find.byKey(Key('FullScreenImage'));
+    final saveButton = find.text('Save');
+    final visitButton = find.text('Visit');
+
+    expect(titleFinder, findsOneWidget);
+    expect(saveButton, findsOneWidget);
+    expect(visitButton, findsOneWidget);
   });
 }
